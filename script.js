@@ -1,45 +1,122 @@
-function knightMoves(startCell, endCell) {
-  // Breadth-first search on possible moves from startCell.
-  const knightPath = search(startCell, endCell);
-  // The search functions returns the array of positions from startCell to endCell.
-  // Log the result to the console.
-}
+class KnightSearch {
+  // Breadth-first search on possible moves from starting coordinates.
+  knightMoves(startCell, endCell) {
+    let endNode;
+    try {
+      endNode = this.search(startCell, endCell);
+      const path = this.traverse(endNode);
+      this.logSolution(path);
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  }
 
-function search(start, end) {
-  const visitedCells = new Set();
-  const queue = new Queue(start);
+  search(start, end) {
+    // Initially, the starting cell has been visisted but not searched.
+    const visitedCells = new Set(start);
+    const root = new TreeNode(start);
+    const search = new Queue();
+    search.enqueue(root);
 
-  // TODO: Add a move list that will track the shortest path from start to end.
+    // Begin the search.
+    while (search.size > 0) {
+      const parentNode = search.dequeue();
+      const moves = this.getLegalMoves(parentNode.coordinates);
 
-  while (true) {
-    const cell = queue.dequeue();
-    const moves = getLegalMoves(cell);
+      for (const moveCoordinates of moves) {
+        // Create a new node for each eligible move.
+        const reachableNode = new TreeNode(
+          moveCoordinates,
+          parentNode.distance + 1
+        );
+        reachableNode.setParent(parentNode);
 
-    moves.forEach((move) => {
-      if (move === end) {
-        // Return the move list.
+        // Success.
+        if (
+          reachableNode.coordinates[0] === end[0] &&
+          reachableNode.coordinates[1] === end[1]
+        ) {
+          return reachableNode;
+        }
+
+        // Queue any unvisited cells for search.
+        if (!visitedCells.has(reachableNode.coordinates)) {
+          visitedCells.add(reachableNode.coordinates);
+          search.enqueue(reachableNode);
+        }
+        // Otherwise discard the node and process the next one.
       }
-      if (!visitedCells.has(move)) {
-        queue.enqueue(move);
-        visitedCells.add(move);
-      }
-    });
+    }
+
+    throw new Error(
+      "Search finished without finding a path from start to end."
+    );
+  }
+
+  getLegalMoves(cell) {
+    const eligibleMoves = this.getAllMoves(cell);
+    return this.checkOutOfBounds(eligibleMoves);
+  }
+
+  getAllMoves(cell) {
+    const x = cell[0];
+    const y = cell[1];
+    // Starting on the positive x-axis and moving CCW.
+    let moves = [];
+    moves.push([x + 2, y + 1]);
+    moves.push([x + 1, y + 2]);
+    moves.push([x - 1, y + 2]);
+    moves.push([x - 2, y + 1]);
+    moves.push([x - 2, y - 1]);
+    moves.push([x - 1, y - 2]);
+    moves.push([x + 1, y - 2]);
+    moves.push([x + 2, y + 1]);
+    return moves;
+  }
+
+  checkOutOfBounds(eligibleMoves) {
+    const minX = 0;
+    const minY = 0;
+    const maxX = 7;
+    const maxY = 7;
+    return eligibleMoves.filter(
+      ([x, y]) => x >= minX && x <= maxX && y >= minY && y <= maxY
+    );
+  }
+
+  traverse(end) {
+    let path = [];
+    path.push(end.coordinates);
+
+    let node = end;
+    while (node.parent !== null) {
+      path.push(node.parent.coordinates);
+      node = node.parent;
+    }
+    // We started reading from the end, so reverse the path to list coordinates from the start.
+    return path.reverse();
+  }
+
+  logSolution(path) {
+    console.log(`You made it in ${path.length - 1} move(s)!`);
+    console.log("Here's your path:");
+    for (const move of path) {
+      console.log(`    [${move[0]},${move[1]}]`);
+    }
   }
 }
 
-function getLegalMoves(cell) {
-  const eightMoves = getAllMoves(cell)
-  return getLegalMoves(eightMoves);
-}
+class TreeNode {
+  constructor(coordinates, distance = 0) {
+    this.coordinates = coordinates;
+    this.distance = distance;
+    this.parent = null;
+  }
 
-function getAllMoves(cell) {
-  // Return the eight moves by adding/subtracting cell coordinates.
-}
-
-function getLegalMoves(eightMoves) {
-  eightMoves.forEach((move) => {
-    // If a move is out of bounds, pare it from the move list.
-  })
+  setParent(parentNode) {
+    this.parent = parentNode;
+  }
 }
 
 class Queue {
@@ -76,3 +153,6 @@ class Queue {
     return this.size === 0;
   }
 }
+
+const searcher = new KnightSearch();
+searcher.knightMoves([0, 0], [7, 7]);
