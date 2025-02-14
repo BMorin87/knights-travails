@@ -2,18 +2,20 @@ class KnightSearch {
   // Breadth-first search on possible moves from starting coordinates.
   knightMoves(startCell, endCell) {
     let endNode;
+
     try {
       endNode = this.search(startCell, endCell);
-      const path = this.traverse(endNode);
-      this.logSolution(path);
     } catch (e) {
       console.log(e);
       return e;
     }
+
+    const path = this.traverse(endNode);
+    this.logSolution(path);
   }
 
   search(start, end) {
-    // Initially, the starting cell has been visisted but not searched.
+    // Initially, the starting cell has been visited but not searched.
     const visitedCells = new Set(start);
     const root = new TreeNode(start);
     const search = new Queue();
@@ -21,24 +23,20 @@ class KnightSearch {
 
     // Begin the search.
     while (search.size > 0) {
-      const parentNode = search.dequeue();
-      const moves = this.getLegalMoves(parentNode.coordinates);
+      const parent = search.dequeue();
+      const moves = this.getLegalMoves(parent.coordinates);
 
       for (const move of moves) {
         // Create a new node for each eligible move.
-        const reachableNode = new TreeNode(move, parentNode);
+        const reachableNode = new TreeNode(move, parent);
 
         // Success.
-        if (
-          reachableNode.coordinates[0] === end[0] &&
-          reachableNode.coordinates[1] === end[1]
-        ) {
+        if (this.coordinatesAreEqual(move, end)) {
           return reachableNode;
         }
-
-        // Queue any unvisited cells for search.
-        if (!visitedCells.has(reachableNode.coordinates)) {
-          visitedCells.add(reachableNode.coordinates);
+        // Visit any new cells and queue them for search.
+        if (!visitedCells.has(move)) {
+          visitedCells.add(move);
           search.enqueue(reachableNode);
         }
         // Otherwise discard the node and process the next one.
@@ -79,6 +77,13 @@ class KnightSearch {
     return eligibleMoves.filter(
       ([x, y]) => x >= minX && x <= maxX && y >= minY && y <= maxY
     );
+  }
+
+  coordinatesAreEqual(a, b) {
+    if (a[0] === b[0] && a[1] === b[1]) {
+      return true;
+    }
+    return false;
   }
 
   traverse(end) {
@@ -146,4 +151,6 @@ class Queue {
 }
 
 const searcher = new KnightSearch();
-searcher.knightMoves([0, 0], [7, 7]);
+start = [0, 0];
+end = [7, 7];
+searcher.knightMoves(start, end);
