@@ -24,13 +24,9 @@ class KnightSearch {
       const parentNode = search.dequeue();
       const moves = this.getLegalMoves(parentNode.coordinates);
 
-      for (const moveCoordinates of moves) {
+      for (const move of moves) {
         // Create a new node for each eligible move.
-        const reachableNode = new TreeNode(
-          moveCoordinates,
-          parentNode.distance + 1
-        );
-        reachableNode.setParent(parentNode);
+        const reachableNode = new TreeNode(move, parentNode);
 
         // Success.
         if (
@@ -108,14 +104,9 @@ class KnightSearch {
 }
 
 class TreeNode {
-  constructor(coordinates, distance = 0) {
+  constructor(coordinates, parent = null) {
     this.coordinates = coordinates;
-    this.distance = distance;
-    this.parent = null;
-  }
-
-  setParent(parentNode) {
-    this.parent = parentNode;
+    this.parent = parent;
   }
 }
 
